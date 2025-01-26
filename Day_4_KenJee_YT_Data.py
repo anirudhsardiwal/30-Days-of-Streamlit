@@ -60,6 +60,8 @@ def load_data():
     return df_agg, df_agg_sub, df_comments, df_time
 
 
+load_data()
+
 df_agg, df_agg_sub, df_comments, df_time = load_data()
 
 add_sidebar = st.sidebar.selectbox(
@@ -82,7 +84,6 @@ median_agg = df_agg_diff[df_agg_diff["Video publish time"] >= metric_date_12mo][
 if add_sidebar == "Aggregate":
     df_agg_metrics = df_agg[
         [
-            "Video publish time",
             "Views",
             "Likes",
             "Subscribers",
@@ -96,19 +97,37 @@ if add_sidebar == "Aggregate":
         ]
     ]
 
-    metric_date_6mo = df_agg_metrics["Video publish time"].max() - pd.DateOffset(
-        months=6
-    )
-    metric_date_12mo = df_agg_metrics["Video publish time"].max() - pd.DateOffset(
-        months=12
-    )
-    metric_median_6mo = df_agg_metrics[
-        df_agg_metrics["Video publish time"] >= metric_date_6mo
-    ].median()
-    metric_median_12mo = df_agg_metrics[
-        df_agg_metrics["Video publish time"] >= metric_date_12mo
+    metric_date_6mo = df_agg["Video publish time"].max() - pd.DateOffset(months=6)
+    metric_date_12mo = df_agg["Video publish time"].max() - pd.DateOffset(months=12)
+    metric_median_6mo = df_agg[df_agg["Video publish time"] >= metric_date_6mo].median()
+    metric_median_12mo = df_agg[
+        df_agg["Video publish time"] >= metric_date_12mo
     ].median()
 
 st.metric(
     label="Views", value=metric_median_6mo["Views"], delta=metric_median_12mo["Views"]
 )
+
+col1, col2, col3, col4, col5 = st.columns(5)
+columns = [col1, col2, col3, col4, col5]
+
+cols_metrics = [
+    "Views",
+    "Likes",
+    "Subscribers",
+    "Comments added",
+    "Shares",
+    "RPM (USD)",
+    "Average percentage viewed (%)",
+    "Average view duration",
+    "Engagement_ratio",
+    "Views_by_sub_gained",
+]
+
+for col in cols_metrics:
+    delta = (metric_median_6mo[col] - metric_median_12mo[col]) / metric_median_12mo[col]
+    st.metric(
+        label=col,
+        value=round(metric_median_6mo[col], 1),
+        delta=f"{delta:.2%}",
+    )
