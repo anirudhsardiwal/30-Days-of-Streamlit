@@ -49,7 +49,8 @@ def load_data():
         + df_agg["Likes"]
     ) / df_agg["Views"]
 
-    df_agg["Views_by_sub_gained"] = df_agg["Views"] / df_agg["Subscribers gained"]
+    df_agg["Views_by_sub_gained"] = df_agg["Views"] / \
+        df_agg["Subscribers gained"]
 
     df_agg.sort_values(by="Video publish time", ascending=False, inplace=True)
 
@@ -73,7 +74,8 @@ df_agg["Video publish time"] = pd.to_datetime(
 )
 
 df_agg_diff = df_agg.copy()
-metric_date_12mo = df_agg_diff["Video publish time"].max() - pd.DateOffset(months=12)
+metric_date_12mo = df_agg_diff["Video publish time"].max(
+) - pd.DateOffset(months=12)
 
 numeric_cols = df_agg.select_dtypes(include=[np.number]).columns.tolist()
 
@@ -97,8 +99,10 @@ if add_sidebar == "Aggregate":
         ]
     ]
 
-    metric_date_6mo = df_agg["Video publish time"].max() - pd.DateOffset(months=6)
-    metric_date_12mo = df_agg["Video publish time"].max() - pd.DateOffset(months=12)
+    metric_date_6mo = df_agg["Video publish time"].max() - \
+        pd.DateOffset(months=6)
+    metric_date_12mo = df_agg["Video publish time"].max(
+    ) - pd.DateOffset(months=12)
     metric_median_6mo = df_agg[df_agg["Video publish time"] >= metric_date_6mo][
         numeric_cols
     ].median()
@@ -154,4 +158,23 @@ df_agg_diff_final = df_agg_diff[
     ]
 ]
 
-st.dataframe(df_agg_diff_final)
+
+def style_negative(v, props=""):
+    try:
+        return props if v < 0 else None
+    except:
+        pass
+
+
+def style_positive(v, props=""):
+    try:
+        return props if v > 0 else None
+    except:
+        pass
+
+
+st.dataframe(
+    df_agg_diff_final.style.applymap(style_negative, props="color:red;").applymap(
+        style_positive, props="color:green;"
+    )
+)
