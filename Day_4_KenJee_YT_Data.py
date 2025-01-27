@@ -99,14 +99,12 @@ if add_sidebar == "Aggregate":
 
     metric_date_6mo = df_agg["Video publish time"].max() - pd.DateOffset(months=6)
     metric_date_12mo = df_agg["Video publish time"].max() - pd.DateOffset(months=12)
-    metric_median_6mo = df_agg[df_agg["Video publish time"] >= metric_date_6mo].median()
-    metric_median_12mo = df_agg[
-        df_agg["Video publish time"] >= metric_date_12mo
+    metric_median_6mo = df_agg[df_agg["Video publish time"] >= metric_date_6mo][
+        numeric_cols
     ].median()
-
-st.metric(
-    label="Views", value=metric_median_6mo["Views"], delta=metric_median_12mo["Views"]
-)
+    metric_median_12mo = df_agg[df_agg["Video publish time"] >= metric_date_12mo][
+        numeric_cols
+    ].median()
 
 col1, col2, col3, col4, col5 = st.columns(5)
 columns = [col1, col2, col3, col4, col5]
@@ -119,15 +117,41 @@ cols_metrics = [
     "Shares",
     "RPM (USD)",
     "Average percentage viewed (%)",
-    "Average view duration",
+    "Average_duration_sec",
     "Engagement_ratio",
     "Views_by_sub_gained",
 ]
 
+count = 0
 for col in cols_metrics:
-    delta = (metric_median_6mo[col] - metric_median_12mo[col]) / metric_median_12mo[col]
-    st.metric(
-        label=col,
-        value=round(metric_median_6mo[col], 1),
-        delta=f"{delta:.2%}",
-    )
+    with columns[count]:
+        delta = (metric_median_6mo[col] - metric_median_12mo[col]) / metric_median_12mo[
+            col
+        ]
+        st.metric(
+            label=col,
+            value=round(metric_median_6mo[col], 1),
+            delta=f"{delta:.2%}",
+        )
+        count += 1
+        if count >= 5:
+            count = 0
+
+df_agg_diff["Publish_date"] = df_agg_diff["Video publish time"].apply(
+    lambda x: x.date()
+)
+
+df_agg_diff_final = df_agg_diff[
+    [
+        "Video title",
+        "Publish_date",
+        "Views",
+        "Likes",
+        "Subscribers",
+        "Average_duration_sec",
+        "Engagement_ratio",
+        "Views_by_sub_gained",
+    ]
+]
+
+st.dataframe(df_agg_diff_final)
