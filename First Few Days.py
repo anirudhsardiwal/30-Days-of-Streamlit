@@ -5,6 +5,94 @@ import streamlit as st
 from datetime import time, datetime
 import time
 
+# Day 25 #####################################################
+st.subheader("Session State Video")
+
+"session state object: ", st.session_state
+
+if "a_counter" not in st.session_state:
+    st.session_state["a_counter"] = 0
+
+if "boolean" not in st.session_state:
+    st.session_state.boolean = False
+
+st.write("Counter is:", st.session_state["a_counter"])
+st.write("Boolean is:", st.session_state.boolean)
+
+for the_key in st.session_state.keys():
+    st.write(the_key)
+
+for the_values in st.session_state.values():
+    st.write(the_values)
+
+for item in st.session_state.items():
+    item
+
+button = st.button("Update State")
+"before pressing button", st.session_state
+if button:
+    st.session_state["a_counter"] += 1
+    st.session_state.boolean = not st.session_state.boolean
+"after pressing button", st.session_state
+
+
+# Day 25 #####################################################
+st.subheader("Session State")
+
+
+def lbs_to_kg():
+    st.session_state.kg = st.session_state.lbs / 2.24
+
+
+def kg_to_lbs():
+    st.session_state.lbs = st.session_state * 2.24
+
+
+st.write("#### Input")
+col1, spacer, col2 = st.columns([2, 1, 2])
+
+with col1:
+    pounds = st.number_input("Pounds:", key="lbs", on_change=lbs_to_kg)
+with col2:
+    kilograms = st.number_input("Kilograms:", key="kg", on_change=kg_to_lbs)
+
+st.write("#### Output")
+st.write("Session State Object:", st.session_state)
+
+
+st.divider()
+# Day 24 #####################################################
+st.subheader("Cache")
+
+st.write("#### Using Cache")
+a0 = time.time()
+
+
+@st.cache_data()
+def load_data_a():
+    df = pd.DataFrame(np.random.rand(20, 5), columns=["a", "b", "c", "d", "e"])
+    return df
+
+
+st.write(load_data_a())
+a1 = time.time()
+st.info(a1 - a0)
+
+st.write("#### Not Using Cache")
+
+b0 = time.time()
+
+
+def load_data_b():
+    df = pd.DataFrame(np.random.rand(20, 5), columns=["a", "b", "c", "d", "e"])
+    return df
+
+
+st.write(load_data_b())
+a1 = time.time()
+st.info(a1 - a0)
+
+st.divider()
 # Day 22 #####################################################
 st.subheader("Forms")
 st.write("#### Coffee Machine")
