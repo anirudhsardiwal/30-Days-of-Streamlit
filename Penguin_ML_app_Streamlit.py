@@ -7,14 +7,9 @@ from sklearn.ensemble import RandomForestClassifier
 df = pd.read_csv(
     "https://raw.githubusercontent.com/dataprofessor/data/master/penguins_cleaned.csv"
 )
-with st.expander("**Data**"):
-    df
 
 X_raw = df.drop(columns=["species"])
 y_raw = df["species"]
-
-with st.expander("**Data Viz**"):
-    st.scatter_chart(df, x="bill_length_mm", y="bill_depth_mm", color="species")
 
 with st.sidebar:
     st.header("Input Features")
