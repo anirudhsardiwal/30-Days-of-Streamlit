@@ -114,33 +114,43 @@ def plot_top_right():
         title="Sales for year 2023",
         height=400,
     )
-    fig.update_traces(textfont_size=12, textangle=0, textposition='outside', cliponaxis=False)
-    
+    fig.update_traces(
+        textfont_size=12, textangle=0, textposition="outside", cliponaxis=False
+    )
+
     st.plotly_chart(fig, use_container_width=True)
+
 
 def plot_bottom_left():
     sales_data = duckdb.sql(
         f"""
-        with sales_data as( select Scenario, {','.join(all_months)} from df where Year='2023' and Account='Sales' and business_unit='Software'
+        with sales_data as( select Scenario, {",".join(all_months)} from df where Year='2023' and Account='Sales' and business_unit='Software'
         )
-        unpivot sales_data on {','.join(all_months)} into name month value sales
+        unpivot sales_data on {",".join(all_months)} into name month value sales
         """
     ).df()
-    
-    fig=px.line(
-        sales_data, x='month', y='sales', color='Scenario', markers=True, text='sales', title='Monthly Budget vs Forecast 2023'
+
+    fig = px.line(
+        sales_data,
+        x="month",
+        y="sales",
+        color="Scenario",
+        markers=True,
+        text="sales",
+        title="Monthly Budget vs Forecast 2023",
     )
-    fig.update_traces(textposition='top center')
+    fig.update_traces(textposition="top center")
     st.plotly_chart(fig, use_container_width=True)
-    
+
+
 def plot_bottom_right():
     sales_data = duckdb.sql(
         f"""
         with sales_data as(
             unpivot(
-                select Account, Year, {','.join([f'ABS({month}) as {month}' for month in all_months])}
+                select Account, Year, {",".join([f"ABS({month}) as {month}" for month in all_months])}
             )
-            on {','.join(all_months)}
+            on {",".join(all_months)}
             into name year value sales
         ),
         
@@ -152,5 +162,27 @@ def plot_bottom_right():
         select * from aggregated_sales
         """
     ).df()
-    
-    fig = px.bar(sales_data, x='Year',)
+
+    fig = px.bar(
+        sales_data,
+        x="Year",
+        y="sales",
+        color="Account",
+        title="Actual Yearly Sales per Account",
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    ######################################
+    # STREAMLIT LAYOUT
+    ######################################
+
+
+top_left, top_right = st.columns((2, 1))
+bot_left, bot_right = st.columns(2)
+
+with top_left:
+    col_1, col_2, col_3, col_4 = st.columns(4)
+
+    with col_1:
+        plot_metric
